@@ -1,25 +1,40 @@
 from dataclasses import dataclass
 from enum import Enum
+from typing import Optional
 
 
 class Pattern(Enum):
     """List pattern."""
-    pattern_title = '<meta property=\"og:title\" content=\"'
-    pattern_image = '<meta property=\"og:image\" content=\"'
-    pattern_description = '<meta property=\"og:description\" content=\"'
-    pattern_site_name = '<meta property=\"og:site_name\" content=\"'
-
-    def get_pattern(self):
-        return 
+    title = 'title'
+    type = 'type'
+    image = 'image'
+    url = 'url'
+    # optional
+    audio = 'audio'
+    determiner = 'determiner'
+    locale = 'locale'
+    locale_alternate = 'locale:alternate'
+    site_name = 'site_name'
+    video = 'video'
+    description = 'description'
 
 
 @dataclass
 class OgTags:
     """Open graph tag."""
+    # Basic Metadata
     title: str
-    description: str
+    type: str
     image: str
-    site_name: str
+    url: str
+    # Optional Metadata
+    audio: Optional[str] = None
+    determiner: Optional[str] = None
+    locale: Optional[str] = None
+    locale_alternate: Optional[str] = None
+    video: Optional[str] = None
+    site_name: Optional[str] = None
+    description: Optional[str] = None 
 
 
 @dataclass

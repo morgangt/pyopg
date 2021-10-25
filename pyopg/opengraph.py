@@ -1,3 +1,4 @@
+from functools import partial
 from model import Request, Pattern, OgTags
 
 from typing import Text, Tuple, Union
@@ -18,7 +19,8 @@ class OpenGraph:
     @staticmethod
     def index_og_tag(res: Request, pattern: Pattern) -> Tuple:
         """Static method return index og:tag on pattern."""
-        index_start = res.text.find(pattern) + len(pattern)
+        find_pattern = f'<meta property="og:{pattern}" content="'
+        index_start = res.text.find(find_pattern) + len(find_pattern)
 
         index_finish = index_start + res.text[(index_start):].find('">')
 
@@ -34,14 +36,14 @@ class OpenGraph:
     
     def get_og_tag(self) -> OgTags:
         """Return object OgTags with info."""
-        tags_data = OgTags(
-            title=self.get_value_tag(self.request, Pattern.pattern_title.value),
-            description=self.get_value_tag(self.request, Pattern.pattern_description.value),
-            image=self.get_value_tag(self.request, Pattern.pattern_image.value),
-            site_name=self.get_value_tag(self.request, Pattern.pattern_site_name.value),
-            )
+        tags_data = partial(OgTags)
 
-        return tags_data
+        for item in Pattern:
+            value = self.get_value_tag(self.request, item.value)
+            if value: 
+                tags_data = partial(tags_data, value)
+
+        return tags_data()
 
     def get_req(self) -> Request:
         """HTTP GET request."""
@@ -56,5 +58,6 @@ class OpenGraph:
 
 if __name__ == '__main__':
     tags = OpenGraph('https://www.imdb.com/title/tt0117500/')
+    tags = OpenGraph('https://russian.rt.com/russia/article/921081-koronavirus-maksimum-zabolevshie-ogranicheniya-qr-kody')
     print(tags.tags)
     print(tags)
