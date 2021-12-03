@@ -14,8 +14,8 @@ class Pattern(Enum):
     determiner = 'determiner'
     locale = 'locale'
     locale_alternate = 'locale:alternate'
-    site_name = 'site_name'
     video = 'video'
+    site_name = 'site_name'
     description = 'description'
 
 

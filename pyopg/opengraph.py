@@ -6,7 +6,15 @@ from urllib import request
 
 
 class OpenGraph:
-    """Parsing opengraph tag site."""
+    """Parsing opengraph tag site.
+
+    Example:
+    ``` python
+        >> og = OpenGraph(url)
+        >> og.tags
+        OgTags(title=....image=...url=...
+    ```
+    """
 
     def __init__(self, url: str) -> None:
         self.url = url
@@ -26,13 +34,28 @@ class OpenGraph:
 
         if '"/>' in res.text[index_start:index_finish]:
             index_finish = index_start + res.text[(index_start):].find('"/>')
+        elif '" />' in res.text[index_start:index_finish]:
+            index_finish = index_start + res.text[(index_start):].find('" />')
 
         return (index_start, index_finish)
 
     def get_value_tag(self, document: Request, pattern: Pattern):
         """Geting value tag on pattern."""
         start, end = self.index_og_tag(document, pattern)
-        return document.text[start:end]
+        result = document.text[start:end]
+
+        if ':og=' in result:
+            return None
+        if '<"' in result:
+            return None
+        if '<!' in result:
+            return None
+        if 'xmlns:' in result:
+            return result
+        if 'http://' in result or 'https://' in result:
+            return result
+
+        return result
     
     def get_og_tag(self) -> OgTags:
         """Return object OgTags with info."""
@@ -42,6 +65,8 @@ class OpenGraph:
             value = self.get_value_tag(self.request, item.value)
             if value: 
                 tags_data = partial(tags_data, value)
+            else:
+                tags_data = partial(tags_data, None)
 
         return tags_data()
 
@@ -58,6 +83,5 @@ class OpenGraph:
 
 if __name__ == '__main__':
     tags = OpenGraph('https://www.imdb.com/title/tt0117500/')
-    tags = OpenGraph('https://russian.rt.com/russia/article/921081-koronavirus-maksimum-zabolevshie-ogranicheniya-qr-kody')
     print(tags.tags)
     print(tags)
